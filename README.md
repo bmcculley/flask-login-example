@@ -7,8 +7,6 @@ An example app showing the basic use of Flask login.
 Setup
 -----
 
-It needs python 3 to work.
-
 Setup a virtual environment and run
 
 `pip install -r requirements.txt`

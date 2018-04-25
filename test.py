@@ -61,6 +61,9 @@ class FlaskLoginTestCase(unittest.TestCase):
     def test_secret(self):
         rv = self.app.get("/secret")
         assert b"Redirecting..." in rv.data
+        self.login("admin", "abc123")
+        rv = self.app.get("/secret")
+        assert b"Hello, admin" in rv.data
 
 if __name__ == "__main__":
     unittest.main()
