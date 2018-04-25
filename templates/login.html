@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+App Login
+{% endblock %}
+
+{% block page_title %}
+App Login
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">
+	{{ form.csrf_token }}
+	{{ form.username.label }}<br/>
+    {{ form.username }}<br/>
+    {{ form.password.label }}<br/>
+    {{ form.password }}<br/>
+    {{ form.submit }}
+</form>
+{% endblock %}
+
+{% block footer %}
+Flask login example app by <a href="http://bmcculley.github.io">bmcculley</a>.
+{% endblock %}

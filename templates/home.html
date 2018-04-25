@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+Hello, world! | Home Page
+{% endblock %}
+
+{% block page_title %}
+My First Flask App
+{% endblock %}
+
+{% block content %}
+<ul>
+	<li><a href="/secret">The protected page</a></li>
+	<li><a href="/login">Login</a></li>
+	<li><a href="/logout">Logout</a></li>
+</ul>
+<!-- placeholder content -->
+<p>
+Hello, world!
+</p>
+{% endblock %}
+
+{% block footer %}
+Flask login example app by <a href="http://bmcculley.github.io">bmcculley</a>.
+{% endblock %}
