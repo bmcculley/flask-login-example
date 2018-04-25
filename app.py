@@ -29,12 +29,13 @@ db = SQLAlchemy(app)
 class User(UserMixin):
 
     def __init__(self, id):
+        user_data = DBUser.query.filter_by(id=id).first()
         self.id = id
-        self.name = "user" + str(id)
-        self.password = self.name + "_secret"
+        self.name = user_data.username
+        self.email = user_data.email
         
     def __repr__(self):
-        return "%d/%s/%s" % (self.id, self.name, self.password)
+        return "%d/%s/%s" % (self.id, self.name, self.email)
 
 
 # the flask wtf login form setup and validation
@@ -42,14 +43,6 @@ class LoginForm(FlaskForm):
     username = TextField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField("Login")
-
-    def validate_username(self, field):
-        if field.data != 'user':
-            raise ValidationError("Invalid username")
-
-    def validate_password(self, field):
-        if field.data != 'password':
-            raise ValidationError("Invalid password")
 
 
 # the user table structure 
@@ -99,19 +92,25 @@ def secret():
 # login here
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    error = None
     if current_user.is_anonymous:
         form = LoginForm()
         if form.validate_on_submit():
             username = request.form["username"]
-            user = User(len(username))
-            login_user(user)
+            password = request.form["password"]
+            user_data = DBUser.query.filter_by(username=username).first()
+            if user_data and user_data.password == password:
+                user = User(user_data.id)
+                login_user(user)
 
-            next = request.args.get("next")
-            if not is_safe_url(next):
-                return abort(400)
+                next = request.args.get("next")
+                if not is_safe_url(next):
+                    return abort(400)
 
-            return redirect(next or url_for("home"))
-        return render_template("login.html", form=form)
+                return redirect(next or url_for("home"))
+            else:
+                error = "Login failed"
+        return render_template("login.html", form=form, error=error)
     else:
         return "Already logged in."
 

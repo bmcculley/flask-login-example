@@ -11,6 +11,10 @@ Setup a virtual environment and run
 
 `pip install -r requirements.txt`
 
+Create and setup the database
+
+`python app.py -s`
+
 Usage
 -----
 

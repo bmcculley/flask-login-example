@@ -9,6 +9,9 @@ App Login
 {% endblock %}
 
 {% block content %}
+{% if error != None %}
+<p>{{ error }}</p>
+{% endif %}
 <form action="" method="post">
 	{{ form.csrf_token }}
 	{{ form.username.label }}<br/>
