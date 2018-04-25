@@ -1,5 +1,7 @@
 # Flask Login Example
 
+[![Build Status](https://travis-ci.org/bmcculley/flask-login-example.svg?branch=master)](https://travis-ci.org/bmcculley/flask-login-example)
+
 An example app showing the basic use of Flask login.
 
 Setup
