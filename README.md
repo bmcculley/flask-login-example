@@ -27,10 +27,6 @@ Also check `python app.py -h` for more options.
 Tests
 -----
 
-This still needs a lot of tests written.
-
-In order to run tests
-
-`pip install -r test.txt`
+To run the tests
 
 `python test.py`

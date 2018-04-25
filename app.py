@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
 import argparse
-from flask import Flask, render_template, request, \
+from flask import Flask, render_template, request, flash, \
                     redirect, Response, url_for, abort
 from urllib.parse import urlparse, urljoin
 from flask_login import LoginManager, UserMixin, current_user, \
                                 login_required, login_user, logout_user
 from flask_wtf import FlaskForm
-from wtforms import TextField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 
@@ -21,8 +21,8 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # setup flask sqlalchemy
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 db = SQLAlchemy(app)
 
 # the user model (flask login)
@@ -40,8 +40,8 @@ class User(UserMixin):
 
 # the flask wtf login form setup and validation
 class LoginForm(FlaskForm):
-    username = TextField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField("Username", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
 
 
@@ -53,15 +53,15 @@ class DBUser(db.Model):
     password = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return '<DBUser %r>' % self.username
+        return "<DBUser %r>" % self.username
 
 
 # setup and populate the database
 def setup_db():
     db.create_all()
     user_dict = {
-        "admin" : DBUser(username='admin', email='admin@example.com', password='abc123'),
-        "guest" : DBUser(username='guest', email='guest@example.com', password='password')}
+        "admin" : DBUser(username="admin", email="admin@example.com", password="abc123"),
+        "guest" : DBUser(username="guest", email="guest@example.com", password="password")}
     for key, user in user_dict.items():
         print("%s added to the database."% user.username)
         db.session.add(user)
@@ -72,7 +72,7 @@ def setup_db():
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
+    return test_url.scheme in ("http", "https") and \
            ref_url.netloc == test_url.netloc
 
 
@@ -102,7 +102,7 @@ def login():
             if user_data and user_data.password == password:
                 user = User(user_data.id)
                 login_user(user)
-
+                flash("You were successfully logged in")
                 next = request.args.get("next")
                 if not is_safe_url(next):
                     return abort(400)
@@ -137,23 +137,23 @@ def load_user(userid):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example usage of flask login.")
-    parser.add_argument('-s', '--setup', dest='dbsetup', action='store_true',
-                    help='This creates and sets up the base database.')
-    parser.add_argument('-r', '--run', dest='run',  action='store_true',
-                    help='Start and run the server.')
-    parser.add_argument('-d', '--debug', dest='debug',  action='store_true',
-                    help='Start the app in debug mode.')
-    parser.add_argument('-l', '--listen', dest='host', default='127.0.0.1',
-                    help='Where should the server listen. \
-                          Defaults to 127.0.0.1.')
-    parser.add_argument('-p', '--port', dest='port', default=5000,
-                    help='Which port should the server listen on. \
-                          Defaults to 5000.')
+    parser.add_argument("-s", "--setup", dest="dbsetup", action="store_true",
+                    help="This creates and sets up the base database.")
+    parser.add_argument("-r", "--run", dest="run",  action="store_true",
+                    help="Start and run the server.")
+    parser.add_argument("-d", "--debug", dest="debug",  action="store_true",
+                    help="Start the app in debug mode.")
+    parser.add_argument("-l", "--listen", dest="host", default="127.0.0.1",
+                    help="Where should the server listen. \
+                          Defaults to 127.0.0.1.")
+    parser.add_argument("-p", "--port", dest="port", default=5000,
+                    help="Which port should the server listen on. \
+                          Defaults to 5000.")
     # if no args were supplied print help and exit
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
-    # we have args...let's do things
+    # we have args...let"s do things
     args = parser.parse_args()
     if args.dbsetup and args.run:
         print("Setup and run arguments can't be used at the same time.")
