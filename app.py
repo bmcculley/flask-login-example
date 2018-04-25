@@ -4,7 +4,7 @@ import argparse
 from flask import Flask, render_template, request, \
                     redirect, Response, url_for, abort
 from urllib.parse import urlparse, urljoin
-from flask_login import LoginManager, UserMixin, \
+from flask_login import LoginManager, UserMixin, current_user, \
                                 login_required, login_user, logout_user
 from flask_wtf import FlaskForm
 from wtforms import TextField, PasswordField, SubmitField
@@ -99,18 +99,21 @@ def secret():
 # login here
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        username = request.form["username"]
-        user = User(len(username))
-        login_user(user)
+    if current_user.is_anonymous:
+        form = LoginForm()
+        if form.validate_on_submit():
+            username = request.form["username"]
+            user = User(len(username))
+            login_user(user)
 
-        next = request.args.get("next")
-        if not is_safe_url(next):
-            return abort(400)
+            next = request.args.get("next")
+            if not is_safe_url(next):
+                return abort(400)
 
-        return redirect(next)
-    return render_template("login.html", form=form)
+            return redirect(next or url_for("home"))
+        return render_template("login.html", form=form)
+    else:
+        return "Already logged in."
 
 
 # log the user out
@@ -124,7 +127,7 @@ def logout():
 # handle failed login
 @app.errorhandler(401)
 def page_not_found(e):
-    return Response("<p>Login failed</p>")
+    return "Login failed"
 
 
 # callback to reload the user object        
