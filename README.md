@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/bmcculley/flask-login-example.svg?branch=master)](https://travis-ci.org/bmcculley/flask-login-example)
 
-An example app showing the basic use of Flask login.
+An example app showing the basic use of [Flask login](https://github.com/maxcountryman/flask-login).
 
 Setup
 -----
 
-Setup a virtual environment and run
+Setup a [virtual environment](https://virtualenv.pypa.io/en/stable/) and run
 
 `pip install -r requirements.txt`
 
