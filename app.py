@@ -5,10 +5,10 @@ from flask import Flask, render_template, request, flash, \
                     redirect, Response, url_for, abort
 from urllib.parse import urlparse, urljoin
 from flask_login import LoginManager, UserMixin, current_user, \
-                                login_required, login_user, logout_user
+                            login_required, login_user, logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import Form, StringField, PasswordField, \
+                        SubmitField, validators
 from flask_sqlalchemy import SQLAlchemy
 
 # flask app setup
@@ -39,10 +39,26 @@ class User(UserMixin):
 
 
 # the flask wtf login form setup and validation
-class LoginForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
+class LoginForm(Form):
+    username = StringField("Username", validators=[validators.DataRequired()])
+    password = PasswordField("Password", validators=[validators.DataRequired()])
     submit = SubmitField("Login")
+
+
+class RegistForm(Form):
+    username = StringField("Username", validators=[validators.DataRequired()
+        ])
+    email = StringField("Email", validators=[
+        validators.DataRequired(), 
+        validators.Email()
+        ])
+    password = PasswordField("Password", validators=[validators.DataRequired(), 
+        validators.EqualTo("vpassword", message="Passwords don't match")
+        ])
+    vpassword = PasswordField("Verify Password", validators=[
+        validators.DataRequired()
+        ])
+    submit = SubmitField("Register")
 
 
 # the user table structure 
@@ -89,15 +105,36 @@ def secret():
     return render_template("secret.html")
 
 
+# register here
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    error = None
+    if current_user.is_anonymous:
+        form = RegistForm(request.form)
+        if request.method == "POST" and form.validate():
+            try:
+                user = DBUser(username=form.username.data, 
+                    email=form.email.data, 
+                    password=form.password.data)
+                db.session.add(user)
+                db.session.commit()
+                return redirect(url_for("login"))
+            except:
+                # need to improve this error handling
+                error = "Username or email already in use."
+        return render_template("register.html", form=form, error=error)
+    else:
+        return redirect(url_for("home"))
+
 # login here
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
     if current_user.is_anonymous:
-        form = LoginForm()
-        if form.validate_on_submit():
-            username = request.form["username"]
-            password = request.form["password"]
+        form = LoginForm(request.form)
+        if request.method == "POST" and form.validate():
+            username = form.username.data
+            password = form.password.data
             user_data = DBUser.query.filter_by(username=username).first()
             if user_data and user_data.password == password:
                 user = User(user_data.id)
