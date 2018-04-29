@@ -40,6 +40,15 @@ class FlaskLoginTestCase(unittest.TestCase):
         ), follow_redirects=True)
 
 
+    def register(self, username, email, password):
+        return self.app.post("/login", data=dict(
+            username=username,
+            email=email,
+            password=password,
+            vpassword=password
+        ), follow_redirects=True)
+
+
     def logout(self):
         return self.app.get("/logout", follow_redirects=True)
 
@@ -64,6 +73,19 @@ class FlaskLoginTestCase(unittest.TestCase):
         self.login("admin", "abc123")
         rv = self.app.get("/secret")
         assert b"Hello, admin" in rv.data
+        rv = self.logout()
+        assert b"Hello, world!" in rv.data
+
+
+    def test_bad_registration(self):
+        rv = self.register("admin", "admin@example.com", "abc123")
+        assert b"Username or email already in use."
+
+
+    def test_good_registration(self):
+        rv = self.register("user2", "user2@example.com", "abc123")
+        assert b"App Login" in rv.data
+        
 
 if __name__ == "__main__":
     unittest.main()
