@@ -10,6 +10,7 @@ from flask_wtf import FlaskForm
 from wtforms import Form, StringField, PasswordField, \
                         SubmitField, validators
 from flask_sqlalchemy import SQLAlchemy
+import bcrypt
 
 # flask app setup
 app = Flask(__name__)
@@ -76,8 +77,8 @@ class DBUser(db.Model):
 def setup_db():
     db.create_all()
     user_dict = {
-        "admin" : DBUser(username="admin", email="admin@example.com", password="abc123"),
-        "guest" : DBUser(username="guest", email="guest@example.com", password="password")}
+        "admin" : DBUser(username="admin", email="admin@example.com", password=bcrypt.hashpw(b"abc123", bcrypt.gensalt())),
+        "guest" : DBUser(username="guest", email="guest@example.com", password=bcrypt.hashpw(b"password", bcrypt.gensalt()))}
     for key, user in user_dict.items():
         print("%s added to the database."% user.username)
         db.session.add(user)
@@ -115,7 +116,7 @@ def register():
             try:
                 user = DBUser(username=form.username.data, 
                     email=form.email.data, 
-                    password=form.password.data)
+                    password=bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()))
                 db.session.add(user)
                 db.session.commit()
                 return redirect(url_for("login"))
@@ -134,9 +135,9 @@ def login():
         form = LoginForm(request.form)
         if request.method == "POST" and form.validate():
             username = form.username.data
-            password = form.password.data
+            password = form.password.data.encode("utf-8")
             user_data = DBUser.query.filter_by(username=username).first()
-            if user_data and user_data.password == password:
+            if user_data and bcrypt.checkpw(password, user_data.password):
                 user = User(user_data.id)
                 login_user(user)
                 flash("You were successfully logged in")
