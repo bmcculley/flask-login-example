@@ -3,7 +3,7 @@ from flask import escape, render_template, request, flash, \
 from flask_login import UserMixin, current_user, \
                             login_required, login_user, logout_user
 from urllib.parse import urlparse, urljoin
-from loginapp import app, db, login_manager
+from loginapp import app, db, login_manager, logger
 from loginapp.forms import LoginForm, RegistForm
 from loginapp import models
 import bcrypt
