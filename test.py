@@ -10,7 +10,7 @@
 """
 
 import os
-from app import *
+from loginapp import app, db, login_manager, models, views
 import unittest
 import bcrypt
 
@@ -22,8 +22,8 @@ class FlaskLoginTestCase(unittest.TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
         db.create_all()
         user_dict = {
-            "admin" : DBUser(username="admin", email="admin@example.com", password=bcrypt.hashpw(b"abc123", bcrypt.gensalt())),
-            "guest" : DBUser(username="guest", email="guest@example.com", password=bcrypt.hashpw(b"password", bcrypt.gensalt()))}
+            "admin" : models.DBUser(username="admin", email="admin@example.com", password=bcrypt.hashpw(b"abc123", bcrypt.gensalt())),
+            "guest" : models.DBUser(username="guest", email="guest@example.com", password=bcrypt.hashpw(b"password", bcrypt.gensalt()))}
         for key, user in user_dict.items():
             db.session.add(user)
         db.session.commit()
